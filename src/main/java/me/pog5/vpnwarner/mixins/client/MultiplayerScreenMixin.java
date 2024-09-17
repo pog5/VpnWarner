@@ -6,6 +6,7 @@ import me.pog5.vpnwarner.client.utils.VpnDetection;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
+import net.minecraft.client.network.ServerInfo;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -21,12 +22,12 @@ public class MultiplayerScreenMixin {
     private Screen parent;
 
     @Inject(method = "connect(Lnet/minecraft/client/network/ServerInfo;)V", at = @At("HEAD"), cancellable = true)
-    private void showWarningScreenArged(CallbackInfo ci) {
+    private void showWarningScreenArged(ServerInfo entry, CallbackInfo ci) {
         boolean isVpnRunning = VpnDetection.isVpnEnabled();
         if (isVpnRunning && VpnwarnerClient.DETECTED_VPN.length() < 3)
                 return;
         if (isVpnRunning && !VpnwarnerClient.DISMISSED_WARNING) {
-            MinecraftClient.getInstance().setScreen(new VpnWarningScreen(((MultiplayerScreen) (Object) this)));
+            MinecraftClient.getInstance().setScreen(new VpnWarningScreen(((MultiplayerScreen) (Object) this), entry));
             ci.cancel();
         } else {
             VpnwarnerClient.DISMISSED_WARNING = false;

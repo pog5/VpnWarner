@@ -4,7 +4,10 @@ import me.pog5.vpnwarner.client.VpnwarnerClient;
 import me.pog5.vpnwarner.client.utils.VpnDetection;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.WarningScreen;
+import net.minecraft.client.gui.screen.multiplayer.ConnectScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.network.ServerAddress;
+import net.minecraft.client.network.ServerInfo;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -15,7 +18,7 @@ public class VpnWarningScreen extends WarningScreen {
     private static final Text HEADER = Text.literal("CAUTION: You have a VPN enabled!").formatted(Formatting.BOLD, Formatting.RED);
     private static final Text MESSAGE = Text.literal("")
             .append("Some servers (such as Loka) will ")
-            .append(Text.literal("ban your __account__").formatted(Formatting.RED))
+            .append(Text.literal("ban your account").formatted(Formatting.RED))
             .append(" for using a VPN, and subsequently your main IP address as well.")
             .append("\n")
             .append(Text.literal("Detected VPNs: ").formatted(Formatting.BOLD))
@@ -25,10 +28,12 @@ public class VpnWarningScreen extends WarningScreen {
                     )).formatted(Formatting.RED, Formatting.BOLD));
     private static final Text NARRATED_TEXT = HEADER.copy().append("\n").append(MESSAGE);
     private final Screen parent;
+    private final ServerInfo entry;
 
-    public VpnWarningScreen(Screen parent) {
+    public VpnWarningScreen(Screen parent, ServerInfo entry) {
         super(HEADER, MESSAGE, null, NARRATED_TEXT);
         this.parent = parent;
+        this.entry = entry;
         if (!VpnDetection.isVpnEnabled()) this.client.setScreen(this.parent);
     }
 
@@ -37,8 +42,8 @@ public class VpnWarningScreen extends WarningScreen {
 
         this.addDrawableChild(ButtonWidget.builder(Text.literal("Wait... "), button -> {
             VpnwarnerClient.DISMISSED_WARNING = true;
-            this.client.setScreen(this.parent);
             VpnwarnerClient.DETECTED_VPN = "";
+            ConnectScreen.connect(this, this.client, ServerAddress.parse(entry.address), entry, false);
         }).dimensions(this.width / 2 - 155, 100 + yOffset, 150, 20).build());
         this.addDrawableChild(ButtonWidget.builder(ScreenTexts.BACK, button -> {
             this.client.setScreen(this.parent);
