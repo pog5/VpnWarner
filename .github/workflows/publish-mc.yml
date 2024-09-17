@@ -1,0 +1,46 @@
+name: Build Mod
+ 
+on:
+  push:
+    branches:
+      - master
+  release:
+    types: [published]
+  workflow_dispatch:
+
+ 
+jobs:
+  upload_asset:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      - name: Validate Gradle Wrapper
+        uses: gradle/wrapper-validation-action@v3
+      - uses: burrunan/gradle-cache-action@v1
+        with:
+          gradle-distribution-sha-256-sum-warning: false
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          cache: gradle
+          java-version: 21
+      - run: chmod +x gradlew
+      - name: Build with Gradle
+        run: ./gradlew build
+      # upload the jar to the action as a build artifact
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: 'Mod Jar File' # dont include the sources jar
+          path: build/libs/*.jar
+#        run: ./gradlew build publish --no-daemon -PmineblockMavenUsername=mineblock11 -PmineblockMavenPassword=${{ secrets.MAVEN_TOKEN }}
+#      - uses: Kir-Antipov/mc-publish@v3.2
+#        with:
+#          version-resolver: exact
+#          modrinth-id: ${{ vars.MODRINTH_ID }}
+#          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+#          curseforge-id: ${{ vars.CURSEFORGE_ID }}
+#          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+#          github-token: ${{ secrets.CLASSIC_GITHUB_TOKEN }}
