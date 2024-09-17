@@ -20,19 +20,12 @@ public class MultiplayerScreenMixin {
     @Shadow
     private Screen parent;
 
-    @Inject(method = "connect()V", at = @At("HEAD"), cancellable = true)
-    private void showWarningScreen(CallbackInfo ci) {
-        if (VpnDetection.isVpnEnabled() && !VpnwarnerClient.DISMISSED_WARNING) {
-            MinecraftClient.getInstance().setScreen(new VpnWarningScreen(((MultiplayerScreen) (Object) this)));
-            ci.cancel();
-        } else {
-            VpnwarnerClient.DISMISSED_WARNING = false;
-        }
-    }
-
     @Inject(method = "connect(Lnet/minecraft/client/network/ServerInfo;)V", at = @At("HEAD"), cancellable = true)
     private void showWarningScreenArged(CallbackInfo ci) {
-        if (VpnDetection.isVpnEnabled() && !VpnwarnerClient.DISMISSED_WARNING) {
+        boolean isVpnRunning = VpnDetection.isVpnEnabled();
+        if (isVpnRunning && VpnwarnerClient.DETECTED_VPN.length() < 3)
+                return;
+        if (isVpnRunning && !VpnwarnerClient.DISMISSED_WARNING) {
             MinecraftClient.getInstance().setScreen(new VpnWarningScreen(((MultiplayerScreen) (Object) this)));
             ci.cancel();
         } else {
