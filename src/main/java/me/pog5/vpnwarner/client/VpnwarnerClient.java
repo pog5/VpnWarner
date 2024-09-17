@@ -4,7 +4,7 @@ import net.fabricmc.api.ClientModInitializer;
 
 public class VpnwarnerClient implements ClientModInitializer {
     public static boolean DISMISSED_WARNING = false;
-    public static String DETECTED_VPN = null;
+    public static String DETECTED_VPN = "";
 
     @Override
     public void onInitializeClient() {

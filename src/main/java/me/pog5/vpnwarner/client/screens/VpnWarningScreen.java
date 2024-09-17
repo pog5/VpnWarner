@@ -13,7 +13,16 @@ import java.util.Date;
 
 public class VpnWarningScreen extends WarningScreen {
     private static final Text HEADER = Text.literal("CAUTION: You have a VPN enabled!").formatted(Formatting.BOLD, Formatting.RED);
-    private static final Text MESSAGE = Text.literal("").append("Some servers (such as Loka) will ").append(Text.literal("ban your __account__").formatted(Formatting.RED)).append(" for using a VPN, and subsequently your main IP address as well.").append("\n").append(Text.literal("Detected VPN: ").formatted(Formatting.BOLD)).append(Text.literal(VpnwarnerClient.DETECTED_VPN).formatted(Formatting.RED, Formatting.BOLD));
+    private static final Text MESSAGE = Text.literal("")
+            .append("Some servers (such as Loka) will ")
+            .append(Text.literal("ban your __account__").formatted(Formatting.RED))
+            .append(" for using a VPN, and subsequently your main IP address as well.")
+            .append("\n")
+            .append(Text.literal("Detected VPNs: ").formatted(Formatting.BOLD))
+
+            .append(Text.literal( // trim the last comma
+                    VpnwarnerClient.DETECTED_VPN.substring(Math.min(VpnwarnerClient.DETECTED_VPN.length() - 2, 0), VpnwarnerClient.DETECTED_VPN.length() - 2
+                    )).formatted(Formatting.RED, Formatting.BOLD));
     private static final Text NARRATED_TEXT = HEADER.copy().append("\n").append(MESSAGE);
     private final Screen parent;
 
@@ -29,8 +38,12 @@ public class VpnWarningScreen extends WarningScreen {
         this.addDrawableChild(ButtonWidget.builder(Text.literal("Wait... "), button -> {
             VpnwarnerClient.DISMISSED_WARNING = true;
             this.client.setScreen(this.parent);
+            VpnwarnerClient.DETECTED_VPN = "";
         }).dimensions(this.width / 2 - 155, 100 + yOffset, 150, 20).build());
-        this.addDrawableChild(ButtonWidget.builder(ScreenTexts.BACK, button -> this.client.setScreen(this.parent)).dimensions(this.width / 2 - 155 + 160, 100 + yOffset, 150, 20).build());
+        this.addDrawableChild(ButtonWidget.builder(ScreenTexts.BACK, button -> {
+            this.client.setScreen(this.parent);
+            VpnwarnerClient.DETECTED_VPN = "";
+        }).dimensions(this.width / 2 - 155 + 160, 100 + yOffset, 150, 20).build());
         this.children().forEach(child -> {
             if (child instanceof ButtonWidget button && button.getMessage().getString().contains("Wait")) {
                 button.active = false;
@@ -41,7 +54,7 @@ public class VpnWarningScreen extends WarningScreen {
                     }
                     if (this.client.currentScreen == this) {
                         button.active = true;
-                        button.setMessage(Text.literal("Continue"));
+                        button.setMessage(ScreenTexts.ACKNOWLEDGE);
                     }
                 });
                 thread.start();

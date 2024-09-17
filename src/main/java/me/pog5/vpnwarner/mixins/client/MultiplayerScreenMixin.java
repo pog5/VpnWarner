@@ -23,7 +23,7 @@ public class MultiplayerScreenMixin {
     @Inject(method = "connect()V", at = @At("HEAD"), cancellable = true)
     private void showWarningScreen(CallbackInfo ci) {
         if (VpnDetection.isVpnEnabled() && !VpnwarnerClient.DISMISSED_WARNING) {
-            MinecraftClient.getInstance().setScreen(new VpnWarningScreen(this.parent));
+            MinecraftClient.getInstance().setScreen(new VpnWarningScreen(((MultiplayerScreen) (Object) this)));
             ci.cancel();
         } else {
             VpnwarnerClient.DISMISSED_WARNING = false;
@@ -33,7 +33,7 @@ public class MultiplayerScreenMixin {
     @Inject(method = "connect(Lnet/minecraft/client/network/ServerInfo;)V", at = @At("HEAD"), cancellable = true)
     private void showWarningScreenArged(CallbackInfo ci) {
         if (VpnDetection.isVpnEnabled() && !VpnwarnerClient.DISMISSED_WARNING) {
-            MinecraftClient.getInstance().setScreen(new VpnWarningScreen(this.parent));
+            MinecraftClient.getInstance().setScreen(new VpnWarningScreen(((MultiplayerScreen) (Object) this)));
             ci.cancel();
         } else {
             VpnwarnerClient.DISMISSED_WARNING = false;
