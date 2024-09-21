@@ -6,6 +6,7 @@
   "mixins": [
   ],
   "client": [
+    "client.GameMenuScerenMixin",
     "client.MultiplayerScreenMixin"
   ],
   "injectors": {
